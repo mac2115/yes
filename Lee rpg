@@ -1,0 +1,199 @@
+local mag,mag1
+local mobs = {
+    "Giant Turtle","Swampling","Ashen Hollow","Blood Slicer","Ashen Jumper","Ashen Raptor","Forest Demon","Forest Guardian","Giant Turtling","Blood Stalker", "Turtling", "Swampling"
+}
+local plr = game:GetService("Players").LocalPlayer
+local Settings ={
+    ChestFarm = false,
+    Drops = false,
+    Autofarm ={
+        Toggle = false,
+        Position = 10,
+        Mob = "Turtling"
+    }
+}
+--//Variables
+
+
+local function droppablesfarm()
+    if Settings.Drops then
+    for i,v  in next, workspace:GetChildren() do
+            if v:FindFirstChild("Prox") then
+                plr.Character:PivotTo(v:GetPivot())
+                task.wait(0.1)
+                mag = (v:GetPivot().Position - plr.Character:GetPivot().Position).magnitude
+                if mag < 15 then
+                    plr.Character:PivotTo(v:GetPivot()+Vector3.new(0,10,0))
+                    fireproximityprompt(v.Prox)
+                end
+            end
+        end
+    end
+end
+
+local function ChestFarm()
+    if Settings.ChestFarm then
+    for i,v  in next, workspace:GetChildren() do
+            if v:FindFirstChild("LootFolder") and v:FindFirstChild("ProximityPrompt") then
+                plr.Character:PivotTo(v:GetPivot() +Vector3.new(0,10,0) )
+                mag = (v:GetPivot().Position - plr.Character:GetPivot().Position).magnitude
+                if mag < 15 then
+                    plr.Character:PivotTo(v:GetPivot()+Vector3.new(0,10,0))
+                    fireproximityprompt(v.ProximityPrompt)
+                end
+            end
+        end
+    end
+end
+
+
+
+
+local function autofarm()
+    if Settings.Autofarm.Toggle then
+        for i,v in next, workspace.GameObjects.Enemies:GetChildren() do 
+            if v.Humanoid.Health >= 0 and v:FindFirstChild("HumanoidRootPart") and v.Name == Settings.Autofarm.Mob then
+                if Settings.Autofarm.Position >= 0 then
+                    plr.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,Settings.Autofarm.Position,0) * CFrame.Angles(math.rad(-90), 0, 0)
+                    mag1 = (v.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).magnitude
+                    if mag1 < 20 then
+                        plr.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,Settings.Autofarm.Position,0) * CFrame.Angles(math.rad(-90), 0, 0)
+                        plr.Character.Events.M1Client:FireServer(false)
+                        plr.Character.HumanoidRootPart.Velocity = Vector3.new()
+                    end
+                end
+            elseif Settings.Autofarm.Position < 0 then
+                plr.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,Settings.Autofarm.Position,0) * CFrame.Angles(math.rad(-90), 0, 0)
+                mag1 = (v.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).magnitude
+                if mag1 < 20 then
+                    plr.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,Settings.Autofarm.Position,0) * CFrame.Angles(math.rad(-90), 0, 0)
+                    plr.Character.Events.M1Client:FireServer(false)
+                    plr.Character.HumanoidRootPart.Velocity = Vector3.new()
+                end
+            end
+        end
+    end
+end
+
+
+
+
+--//Ui 
+
+
+local repo = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/"
+local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
+local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
+local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
+local Window = Library:CreateWindow({
+	-- Set Center to true if you want the menu to appear in the center
+	-- Set AutoShow to true if you want the menu to appear when it is created
+	-- Position and Size are also valid options here
+	-- but you do not need to define them unless you are changing them :)
+	Title = "Lee RPG made by Mac#0014",
+	Center = true,
+	AutoShow = true,
+	TabPadding = 8,
+	MenuFadeTime = 0.2,
+})
+
+
+local Tabs = {
+	-- Creates a new tab titled Main
+	Main = Window:AddTab("Main"),
+	["UI Settings"] = Window:AddTab("UI Settings"),
+}
+
+local LeftGroupBox = Tabs.Main:AddLeftGroupbox("Main")
+LeftGroupBox:AddToggle("MyToggle", {
+	Text = "Mobfarm toggle",
+	Default = false, -- Default value (true / false)
+	Tooltip = "Mobfarm", -- Information shown when you hover over the toggle
+
+	Callback = function(Value)
+		Settings.Autofarm.Toggle = Value
+        autofarm()
+	end,
+})
+
+LeftGroupBox:AddDropdown("MyDropdown", {
+	Values = mobs,
+	Default = 1, -- number index of the value / string
+	Multi = false, -- true / false, allows multiple choices to be selected
+
+	Text = "Mob Selector",
+	Tooltip = "Choose a mob", -- Information shown when you hover over the dropdown
+
+	Callback = function(Value)
+		Settings.Autofarm.Mob = Value
+	end,
+})
+
+LeftGroupBox:AddSlider("MySlider", {
+	Text = "Farm position",
+	Default = 10,
+	Min = -25,
+	Max = 25,
+	Rounding = 1,
+	Compact = false,
+
+	Callback = function(Value)
+		Settings.Autofarm.Position = Value
+	end,
+})
+
+
+
+
+LeftGroupBox:AddToggle("MyToggle", {
+	Text = "Dropable farms",
+	Default = false, -- Default value (true / false)
+	Tooltip = "Mobfarm", -- Information shown when you hover over the toggle
+
+	Callback = function(Value)
+		Settings.Drops = Value
+        droppablesfarm()
+	end,
+})
+
+LeftGroupBox:AddToggle("MyToggle", {
+	Text = "Chest farms",
+	Default = false, -- Default value (true / false)
+	Tooltip = "Mobfarm", -- Information shown when you hover over the toggle
+
+	Callback = function(Value)
+		Settings.ChestFarm = Value
+        ChestFarm()
+	end,
+})
+
+
+local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
+MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", { Default = "End", NoUI = true, Text = "Menu keybind" })
+MenuGroup:AddButton("Unload", function()
+	Library:Unload()
+end)
+MenuGroup:AddButton("Copy discord invite", function()
+	setclipboard("https://discord.gg/t2cXFpkGBh")
+end)
+Library.ToggleKeybind = Options.MenuKeybind
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+SaveManager:IgnoreThemeSettings()
+SaveManager:BuildConfigSection(Tabs["UI Settings"])
+ThemeManager:SetFolder("Lee RPG")
+SaveManager:SetFolder("Lee RPG")
+ThemeManager:ApplyToTab(Tabs["UI Settings"])
+SaveManager:LoadAutoloadConfig()
+
+
+game:GetService("RunService").Heartbeat:connect(function()
+    autofarm()
+end)
+
+
+
+while true do task.wait(0.09)
+    droppablesfarm()
+    ChestFarm()
+end
