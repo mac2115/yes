@@ -18,7 +18,7 @@ local Settings ={
 local function droppablesfarm()
     if Settings.Drops then
     for i,v  in next, workspace:GetChildren() do
-            if v:FindFirstChild("Prox") then
+            if v:FindFirstChild("Prox") and plr.Character.Humanoid.Health > 0 then
                 plr.Character:PivotTo(v:GetPivot())
                 task.wait(0.1)
                 mag = (v:GetPivot().Position - plr.Character:GetPivot().Position).magnitude
@@ -34,7 +34,7 @@ end
 local function ChestFarm()
     if Settings.ChestFarm then
     for i,v  in next, workspace:GetChildren() do
-            if v:FindFirstChild("LootFolder") and v:FindFirstChild("ProximityPrompt") then
+            if v:FindFirstChild("LootFolder") and v:FindFirstChild("ProximityPrompt") and plr.Character.Humanoid.Health > 0 then
                 plr.Character:PivotTo(v:GetPivot() +Vector3.new(0,10,0) )
                 mag = (v:GetPivot().Position - plr.Character:GetPivot().Position).magnitude
                 if mag < 15 then
